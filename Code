@@ -1,0 +1,115 @@
+(*We initialize a nested list with p = 3 elements. Each element in \
+the permutation has two values associated to it. The first value is \
+the integer value of the permutation. The second value is either 0 or \
+1. Zero denotes that the integer is "pointing" left and one denotes \
+the integer is "pointing" right. This is for determining whether the \
+integer is a mobile integer. Note a mobile integer is an integer with \
+a direction such that the integer is greater than the integer to the \
+direction that it is pointing.*)
+
+
+
+(*Swap mobileInteger and the adjacent integer it is pointing towards*)
+
+In[141]:= FindMobileInteger[perm_] := Module[{mobileInteger},
+  mobileInteger = {0, 0, 0}; (*Initialize for debugging purposes*)
+  (*Find greatest mobile integer*)
+  For[i = 1, i <= 3, i++,
+    If[perm[[i, 2]] == 0,
+     If[i - 1 > 0 && perm[[i, 1]] > perm[[i - 1, 1]],
+      mobileInteger = {perm[[i, 1]], i, 
+        0}; (*mobileInteger list of size three: 
+      mobileInteger = {integer, position in permutation, 
+      direction}*)
+      ](*If greater than left integer*)
+     ,(*Else False and direction is right*)
+     If[perm[[i, 1]] > perm[[i + 1, 1]] && i + 1 <= 3,(*Since p = 3*)
+
+      
+      mobileInteger = {perm[[i, 1]], i, 1};
+      ](*If greater than right integer, 
+     else clause for direction is left*)
+     ](*If direction is left*)
+    ](*For i*)
+   Return[mobileInteger]
+  ](*Module*)
+
+In[108]:= 
+Swap[mobileInteger_, perm_] := Module[{holder},
+  If[mobileInteger[[3]] == 0,(*If direction is left*)
+   (*Holder = {integer, direction}*)
+   holder = {mobileInteger[[1]], mobileInteger[[3]]}; 
+   (*Set position of perm of mobile integer to left adjacent integer/
+   direction*)
+   perm[[mobileInteger[[2]]]] = {perm[[mobileInteger[[2]] - 1]]};
+   (*Set left adjacent integer to holder/mobileInteger*)
+   perm[[mobileInteger[[2]] - 1]] = holder;
+   ,(*Else direction is right*)
+   (*Hold integer*)
+   holder = mobileInteger[[1]]; 
+   (*Set position of perm of mobile integer to left adjacent integer*)
+
+   
+   perm[[mobileInteger[[2]]]] = perm[[mobileInteger[[2]] + 1]];
+   (*Set left adjacent integer to holder/mobileInteger*)
+   perm[[mobileInteger[[2]] + 1]] = holder;
+    ](*If*)
+  ](*Module*)
+
+
+(*Reverse the direction of all integers larger than mobileInteger*)
+
+In[109]:= ReverseDirection[perm_, mobileInteger_] := Module[{},
+  For[j = 1, j <= 3, j++,
+   If[perm[[j]][[1]] > mobileInteger[[1]],
+    (*Switch direction*)
+    If[perm[[j]][[2]] == 0,
+     perm[[j]][[2]] = 1;
+     ,
+     perm[[j]][[2]] = 0;
+     ](*If direction switch*)
+    ](*If larger than mobileInteger*)
+   ](*For j*)
+  ](*Module*)
+
+perm[[3]][[1]]
+
+2
+
+In[142]:= Permutes[perm_] := Module[{mobile},
+  (*Find Mobile Integer*)
+  mobile = FindMobileInteger[perm];
+  Print["hi"]
+   Print[mobile]
+   Print[perm]
+   While[mobile != {0, 0, 0},
+    Print["Hello"]
+     Swap[mobile, perm];
+    ReverseDirection[perm, mobile];
+    mobile = FindMobileInteger[perm];
+    ];(*While*)
+  ](*Permute*)
+
+In[76]:= perm
+
+Out[76]= {{1, 0}, {2, 0}, {3, 0}}
+
+In[37]:= mobileInteger = FindMobileInteger[perm]
+
+During evaluation of In[37]:= Part::partd: Part specification List[[1]] is longer than depth of object. >>
+
+In[38]:= Print[mobileInteger]
+
+During evaluation of In[38]:= Null
+
+In[143]:= Permutes[{{1, 0}, {2, 0}, {3, 0}}]
+
+During evaluation of In[143]:= hi
+
+During evaluation of In[143]:= Null Return[{3,3,0}]
+
+During evaluation of In[143]:= {{1,0},{2,0},{3,0}}
+
+In[121]:= TrueQ[{3, 3, 0} != {0, 0, 0}]
+
+Out[121]= True
